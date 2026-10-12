@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Run the summarizer in Docker.
+#   diffsum --repo https://github.com/org/proj --base v1.0 --head v1.1
+#   diffsum --repo . --commit HEAD --format json
+#   diffsum serve | diffsum --server ... | diffsum stop
+set -euo pipefail
+
+root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+image=${DIFFSUM_IMAGE:-git-diff-summarizer:latest}
+project=git-diff-summarizer
+compose=(docker compose -p "$project" -f "$root/compose.yaml")
+
+usage() {
+    cat <<'EOF'
+usage: diffsum [options]            summarize a change
+       diffsum build                build the model and tool images
+       diffsum serve                start the model server (keeps the model loaded)
+       diffsum stop                 stop the model server
+
+options:
+  --repo SRC          git URL or local path (default: .)
+  --base REF          older side of the comparison
+  --head REF          newer side (default: HEAD)
+  --merge-base        compare head against its merge base with --base
+  --commit REF        summarize one commit against its first parent
+  --max-bytes N       diff bytes sent to the model (default: 24000)
+  --format text|json  output format (default: text)
+  --server            use the running `diffsum serve` instead of loading the model
+EOF
+}
+
+# Docker on Windows wants a Windows path for bind mounts, and Git Bash would
+# rewrite arguments that look like paths.
+abs_path() {
+    if command -v cygpath >/dev/null 2>&1; then
+        cygpath -w "$(cd "$1" && pwd)"
+    else
+        (cd "$1" && pwd)
+    fi
+}
+
+case ${1:-} in
+build)
+    "$root/model/fetch.sh"
+    docker build -t git-diff-summarizer-model:latest "$root/model"
+    docker build -t "$image" --build-arg BASE=git-diff-summarizer-model:latest "$root"
+    exit
+    ;;
+serve)
+    "${compose[@]}" up -d model
+    exit
+    ;;
+stop)
+    "${compose[@]}" down
+    exit
+    ;;
+-h | --help)
+    usage
+    exit
+    ;;
+esac
+
+repo=.
+use_server=0
+args=()
+while [ $# -gt 0 ]; do
+    case $1 in
+    --repo) repo=$2; shift 2 ;;
+    --server) use_server=1; shift ;;
+    --base | --head | --commit | --max-bytes | --format) args+=("$1" "$2"); shift 2 ;;
+    --merge-base) args+=("$1"); shift ;;
+    *) usage >&2; exit 2 ;;
+    esac
+done
+
+run=(docker run --rm --memory "${DIFFSUM_MEMORY:-6g}")
+if [ "$use_server" = 1 ]; then
+    run+=(--network "${project}_default" -e DIFFSUM_SERVER=http://model:8080)
+fi
+
+if [ -d "$repo" ]; then
+    mount=$(abs_path "$repo")
+    export MSYS_NO_PATHCONV=1
+    run+=(-v "$mount:/repo:ro")
+    exec "${run[@]}" "$image" --repo /repo "${args[@]}"
+fi
+exec "${run[@]}" "$image" --repo "$repo" "${args[@]}"
