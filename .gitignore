@@ -5,3 +5,4 @@ bench/results/*.log
 *.gguf
 *.llamafile
 .env
+bench/results/*smoke*

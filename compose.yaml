@@ -1,0 +1,25 @@
+name: git-diff-summarizer
+
+# Keeps the model loaded so repeated summaries skip the ~3 s model load.
+# `diffsum --server` runs the tool container on this network and points it at
+# http://model:8080.
+services:
+  model:
+    image: git-diff-summarizer-model:latest
+    command:
+      - sh
+      - -c
+      - exec sh $$LLAMAFILE -m $$MODEL_GGUF --server --host 0.0.0.0 --port 8080 -c 16384 -np 2 --nologo
+    ports:
+      - "127.0.0.1:8100:8080"
+    mem_limit: 6g
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health HTTP/1.0\r\n\r\n' >&3 && grep -q ' 200 ' <&3
+      interval: 5s
+      timeout: 3s
+      retries: 60
+    restart: "no"
