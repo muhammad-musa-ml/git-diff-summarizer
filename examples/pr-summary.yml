@@ -1,0 +1,57 @@
+# Drop this file into .github/workflows/ of a repository to get a summary of
+# every pull request as a comment.
+#
+# It needs a self-hosted runner with Docker and at least 8 GB of free RAM: the
+# model alone is a 3.3 GB file that is mapped into memory, and a summary takes
+# from ten seconds to a couple of minutes on CPU depending on the diff size.
+# Hosted runners are too small for it. Give the runner the label "diffsum" and
+# build the images once on it, which downloads the model and checks its
+# checksum:
+#
+#   git clone https://github.com/muhammad-musa-ml/git-diff-summarizer
+#   cd git-diff-summarizer && ./diffsum build
+#
+# The job skips pull requests from forks, since it would run their branch on
+# your runner.
+name: pr-summary
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  summarize:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, linux, diffsum]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/checkout@v4
+        with:
+          repository: muhammad-musa-ml/git-diff-summarizer
+          path: .diffsum-tool
+
+      - name: Summarize
+        env:
+          BASE: ${{ github.event.pull_request.base.ref }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          .diffsum-tool/diffsum --repo . --base "origin/$BASE" --head "$HEAD" --merge-base > summary.txt
+          {
+            echo "**Change summary** (Gemma 4 E2B running locally, commit ${HEAD:0:7})"
+            echo
+            cat summary.txt
+          } > comment.md
+
+      - name: Comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR" --body-file comment.md --edit-last --create-if-none

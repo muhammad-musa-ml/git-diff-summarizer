@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bats shellcheck jq
+
+      - name: shellcheck
+        run: shellcheck diffsum model/fetch.sh scripts/*.sh bench/bench.sh tests/*.sh tests/stub/llamafile
+
+      - name: bats
+        run: bats tests/
+
+      # The real model is 3.3 GB and never downloaded here: the tool image is
+      # layered on a small base that has a fake llamafile in the same place.
+      - name: Build the tool image on the stub base
+        run: |
+          docker build -t diffsum-stub-base tests/stub
+          docker build -t diffsum-tool --build-arg BASE=diffsum-stub-base .
+
+      - name: Run the tool image against a sample repository
+        run: |
+          bash tests/mkrepo.sh "$RUNNER_TEMP/demo"
+          out=$(docker run --rm -v "$RUNNER_TEMP/demo:/repo:ro" diffsum-tool --repo /repo --commit c2)
+          echo "$out"
+          case $out in "stub summary "*) ;; *) echo "unexpected output" >&2; exit 1 ;; esac

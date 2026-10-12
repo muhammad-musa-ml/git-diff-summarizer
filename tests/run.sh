@@ -13,4 +13,4 @@ if command -v cygpath >/dev/null 2>&1; then
 fi
 export MSYS_NO_PATHCONV=1
 exec docker run --rm --memory 1g -v "$mount:/src:ro" git-diff-summarizer-tests \
-    bash -c 'cd /src && shellcheck diffsum model/fetch.sh scripts/*.sh tests/mkrepo.sh tests/run.sh tests/stub/llamafile && bats tests/'
+    bash -c 'cd /src && shellcheck diffsum model/fetch.sh scripts/*.sh bench/bench.sh tests/*.sh tests/stub/llamafile && bats tests/'
