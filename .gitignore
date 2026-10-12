@@ -1,0 +1,7 @@
+model/cache/
+bench/work/
+bench/results/*.log
+*.part
+*.gguf
+*.llamafile
+.env
