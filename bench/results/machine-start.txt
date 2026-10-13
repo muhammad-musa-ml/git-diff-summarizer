@@ -1,0 +1,11 @@
+time: 2026-10-13T03:45:58Z
+cpu: 13th Gen Intel(R) Core(TM) i7-13700HX
+logical cpus: 24
+os: Microsoft Windows 11 Home 10.0.26200
+cpu busy percent (3 s sample): 54.5
+free physical memory (MB): 1154
+total physical memory (MB): 30413
+docker engine: 28.4.0
+docker vm: cpus=24 memory_bytes=15550525440
+running containers that are not this project's: 9
+running containers of this project: 0

@@ -1,0 +1,8 @@
+date: 2026-10-13T03:46:41Z
+command: bench/bench.sh --commits-file bench/commits.txt --mode oneshot --reps 5 --max-bytes 24000
+repo: https://github.com/sharkdp/fd
+repo head: 14dcd92fb76ca0ebc2e82671a275f67c790d25fc
+docker: 28.4.0 cpus=24 mem_bytes=15550525440
+model image: sha256:b083195c31528c364339e9e53af9a0f761cf137e9caa6d3b3c35390cb06c028e 3543536266
+tool image: sha256:4eec6c3e5f309861ddf0f0155f60b99f4ceb90a5072ba906b42255cc2c32060e 3573011320
+host: MINGW64_NT-10.0-26200 3.6.4-b9f03e96.x86_64

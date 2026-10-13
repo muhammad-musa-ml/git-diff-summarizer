@@ -1,0 +1,53 @@
+commit 3a11690fa2bc01472c642041d00215c6ee42a8b5
+subject: fix: point cargo-binstall at the fd release asset
+summary:
+This change updates the changelog and the Cargo.toml file to fix an issue
+with the release URL for the `cargo binstall` command. Specifically,
+it corrects the package URL format to correctly name the crate as `fd-v{
+version }-{ target }.{ archive-format }` instead of using the crate name
+in the original format. This adjustment ensures that the `cargo binstall`
+command correctly points to the release files for the `fd` binary.
+
+commit 2797c4a6d579ebb1bac8a6b3c58ab9db90bed116
+subject: test: run test_exec_with_separator on Windows when echo is available
+summary:
+This change modifies the test function test_exec_with_separator in the
+tests/tests.rs file. It introduces a check to handle the case on Windows where
+the "echo" executable might not be available, which is only a shell builtin
+unless an external executable is present. This addition ensures that the test
+does not fail unexpectedly on Windows if the `echo` command cannot be executed.
+
+commit 19a55aadcda234e3152281cd918161b2a8558177
+subject: docs(help): pattern is mandatory for path
+summary:
+This change modifies the documentation for the `path` field within the `Opts`
+struct in the `src/cli.rs` file. Specifically, it updates the help text for
+the `path` argument to clarify that if a value is supplied, the pattern
+must come first. This improves the clarity of the command-line interface
+documentation for users of the CLI.
+
+commit b3a8ff687b0d0bc4095fb23ec8dc60ff3be1308e
+subject: Take the broken symlink depth from the walker
+summary:
+This change updates how broken symbolic links are handled within the
+directory walking logic to correctly track their depth relative to the
+search roots. Specifically, in src/dir_entry.rs, the structure for a broken
+symlink is changed to store an optional depth, and the logic in src/walk.rs
+is updated to correctly extract this depth from the error when a broken
+symlink is encountered. This modification addresses an issue where broken
+symlinks were not correctly reporting their depth, especially when multiple
+search roots overlap, by ensuring the depth information is preserved and
+used correctly during the walk.
+
+commit 68edfde807a06a4fe7603692b9a0da5ddc5438af
+subject: Use a struct-like variant for broken symlinks and test max/exact depth
+summary:
+This change updates the `DirEntryInner` enum in `src/dir_entry.rs` to use a
+struct variant for `BrokenSymlink` instead of a tuple, making the path and
+depth fields named. This refactoring is applied across several methods in the
+`DirEntry` implementation, such as `broken_symlink`, `path`, `into_path`,
+`file_type`, and `depth`, to correctly access these new fields. Additionally,
+the tests in `tests/tests.rs` are updated to include new tests that
+specifically validate the behavior of broken symlinks with `--max-depth`
+and `--exact-depth` options.
+
