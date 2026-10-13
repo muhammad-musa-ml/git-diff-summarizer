@@ -69,7 +69,7 @@ if [ "$mode" = server ]; then
 fi
 
 server_hwm() {
-    MSYS_NO_PATHCONV=1 docker exec "$server_container" sh -c 'grep -h VmHWM /proc/[0-9]*/status' |
+    MSYS_NO_PATHCONV=1 docker exec "$server_container" sh -c 'grep -h VmHWM /proc/[0-9]*/status 2>/dev/null; true' |
         awk '{ if ($2 > m) m = $2 } END { print m * 1024 }'
 }
 

@@ -15,7 +15,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bats shellcheck jq
 
       - name: shellcheck
-        run: shellcheck diffsum model/fetch.sh scripts/*.sh bench/bench.sh tests/*.sh tests/stub/llamafile
+        run: shellcheck diffsum model/fetch.sh scripts/*.sh bench/*.sh tests/*.sh tests/stub/llamafile
 
       - name: bats
         run: bats tests/
