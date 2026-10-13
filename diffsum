@@ -47,7 +47,8 @@ build)
     exit
     ;;
 serve)
-    "${compose[@]}" up -d model
+    # --wait blocks until the health check passes, so the first --server call does not hit "Loading model"
+    "${compose[@]}" up -d --wait --wait-timeout 180 model
     exit
     ;;
 stop)

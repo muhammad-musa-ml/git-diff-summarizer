@@ -44,7 +44,7 @@ You need Docker (I used Engine 28.4.0 with Compose v2), bash, curl and git on th
         ./diffsum --repo . --base main --head my-branch --merge-base --format json
 
    A local path is mounted read-only. A URL is cloned inside the container.
-4. To keep the model loaded between calls, run `./diffsum serve`, then add `--server` to the commands above, and run `./diffsum stop` when you are done. The server container publishes port 8100 on localhost and is limited to 6 GB.
+4. To keep the model loaded between calls, run `./diffsum serve`, which returns once the model has loaded, then add `--server` to the commands above, and run `./diffsum stop` when you are done. The server container publishes port 8100 on localhost and is limited to 6 GB.
 
 Flags: `--repo SRC`, `--base REF`, `--head REF` (default `HEAD`), `--merge-base`, `--commit REF`, `--max-bytes N`, `--format text|json`, `--server`. `DIFFSUM_MEMORY` changes the container memory limit (default `6g`).
 
