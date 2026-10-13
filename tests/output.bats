@@ -52,6 +52,7 @@ setup() {
     jq -e '.lines_added > 0 and .lines_removed > 0' <<<"$output" >/dev/null
     jq -e '(.seconds | type) == "number" and (.prompt_bytes | type) == "number"' <<<"$output" >/dev/null
     jq -e '.model_timings.load_seconds != null' <<<"$output" >/dev/null
+    jq -e '.model_timings.peak_rss_bytes > 1000000' <<<"$output" >/dev/null
 }
 
 @test "json reports truncation" {

@@ -34,6 +34,11 @@ teardown() {
     [ "$(jq '.model_timings.load_seconds' <<<"$output")" = null ]
 }
 
+@test "server mode leaves the model's RSS null" {
+    run summarize --commit c2 --format json
+    [ "$(jq '.model_timings.peak_rss_bytes' <<<"$output")" = null ]
+}
+
 @test "an unreachable server is reported" {
     export DIFFSUM_SERVER=http://127.0.0.1:9
     run summarize --commit c2

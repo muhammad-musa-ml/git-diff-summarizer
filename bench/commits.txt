@@ -1,0 +1,12 @@
+# repo https://github.com/sharkdp/fd
+# head 14dcd92fb76ca0ebc2e82671a275f67c790d25fc
+3a11690fa2bc01472c642041d00215c6ee42a8b5 1031 small fix: point cargo-binstall at the fd release asset
+2797c4a6d579ebb1bac8a6b3c58ab9db90bed116 688 small test: run test_exec_with_separator on Windows when echo is available
+e46230b2c3d4c9fd5b101efa53cebc24a91f273b 1156 small test: Don't fail on Windows without `echo` and GNU `ls`
+19a55aadcda234e3152281cd918161b2a8558177 629 small docs(help): pattern is mandatory for path
+24198d904a074f2943b2a3be925e53134c994734 21286 large fix: Better sanitizing
+b3a8ff687b0d0bc4095fb23ec8dc60ff3be1308e 8670 mid Take the broken symlink depth from the walker
+68edfde807a06a4fe7603692b9a0da5ddc5438af 5607 mid Use a struct-like variant for broken symlinks and test max/exact depth
+350b33acda4cbcdec7245d3c4794bc7ba6ad55db 8083 mid Compute depth for broken symlinks so --min-depth keeps them
+807aa11d037194b8259a04f66d844606d3c4dba2 32374 huge chore: remove unrelated planning files
+647ced8ff0788419c804797ae214b323bf1cf3ee 33322 huge fix: address review comments - use into_os_string() and move changelog to unreleased section

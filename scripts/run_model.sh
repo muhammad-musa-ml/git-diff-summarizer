@@ -21,6 +21,7 @@ max_tokens=${DIFFSUM_MAX_TOKENS:-300}
 
 server=${DIFFSUM_SERVER:-}
 load_seconds=null
+peak_rss=null
 server_pid=
 
 stop_server() {
@@ -64,8 +65,14 @@ curl -sS --fail-with-body -m "${DIFFSUM_TIMEOUT:-900}" \
     "$server/v1/chat/completions" >"$work/response.json" ||
     die "model request failed: $(head -c 300 "$work/response.json" 2>/dev/null)"
 
-jq --argjson load "$load_seconds" \
-    '{load_seconds: $load, prompt_tokens: .usage.prompt_tokens,
+# The weights are mapped, so the cgroup peak depends on which container touched
+# the page cache first. The high-water RSS of the model process does not.
+if [ -n "$server_pid" ]; then
+    peak_rss=$(cat /proc/[0-9]*/status 2>/dev/null | awk '/^VmHWM:/ { if ($2 > m) m = $2 } END { print m * 1024 }')
+fi
+
+jq --argjson load "$load_seconds" --argjson rss "$peak_rss" \
+    '{load_seconds: $load, peak_rss_bytes: $rss, prompt_tokens: .usage.prompt_tokens,
       completion_tokens: .usage.completion_tokens,
       prompt_ms: .timings.prompt_ms, generation_ms: .timings.predicted_ms}' \
     "$work/response.json" >"$work/timings.json"
